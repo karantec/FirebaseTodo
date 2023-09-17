@@ -1,12 +1,45 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState,useEffect } from "react"
+import {View,TextInput,StyleSheet} from "react-native"
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Login from "./components/Login";
+import {onAuthStateChanged } from "firebase/auth";
+import {FIREBASE_AUTH} from "./FirebaseConfig"
+import Home from "./components/Home";
+
+// import Home from "./components/Home";
+const Stack=createNativeStackNavigator();
+const InsideStack=createNativeStackNavigator();
+
 
 export default function App() {
+  
+  const [user, setUser] = useState(null);
+
+  
+  useEffect(()=>{
+    onAuthStateChanged(FIREBASE_AUTH,(user)=>{
+      console.log('user',user);
+      setUser(user);
+
+    })
+  },[])
+
+  
+  
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+  
+      <NavigationContainer>
+            <Stack.Navigator initialRouteName="Login">
+            {user ?(
+              <Stack.Screen name="MyTodo" component={Home} options={{headerShown:true}} />
+            ):(
+              <Stack.Screen name="Login" component={Login} options={{headerShown:true}} />
+              )}
+            
+            </Stack.Navigator>
+        </NavigationContainer>
+
   );
 }
 
@@ -17,4 +50,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  
 });
